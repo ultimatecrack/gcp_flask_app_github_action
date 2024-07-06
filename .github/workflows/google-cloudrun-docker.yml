@@ -42,17 +42,17 @@
 #   Container Registry vs Artifact Registry   - https://cloud.google.com/blog/products/application-development/understanding-artifact-registry-vs-container-registry
 #   Principle of least privilege              - https://cloud.google.com/blog/products/identity-security/dont-get-pwned-practicing-the-principle-of-least-privilege
 
-name: Build and Deploy to Cloud Run
+name: Build and Deploy Demo Flask App to Cloud Run
 
 on:
   push:
     branches: [ "main" ]
 
 env:
-  PROJECT_ID: YOUR_PROJECT_ID # TODO: update Google Cloud project id
-  GAR_LOCATION: YOUR_GAR_LOCATION # TODO: update Artifact Registry location
-  SERVICE: YOUR_SERVICE_NAME # TODO: update Cloud Run service name
-  REGION: YOUR_SERVICE_REGION # TODO: update Cloud Run service region
+  PROJECT_ID: mlop-gcp # TODO: update Google Cloud project id
+  GAR_LOCATION: asia-south1-docker.pkg.dev/mlop-gcp/python-app-repository # TODO: update Artifact Registry location
+  SERVICE: flask-github-action-demo-app # TODO: update Cloud Run service name
+  REGION: asia-south1 # TODO: update Cloud Run service region
 
 jobs:
   deploy:
@@ -66,31 +66,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+    #   - name: Google Auth
+    #     id: auth
+    #     uses: 'google-github-actions/auth@v0'
+    #     with:
+    #       token_format: 'access_token'
+    #       workload_identity_provider: '${{ secrets.WIF_PROVIDER }}' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
+    #       service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
+
+      # NOTE: Alternative option - authentication via credentials json
       - name: Google Auth
         id: auth
         uses: 'google-github-actions/auth@v0'
         with:
-          token_format: 'access_token'
-          workload_identity_provider: '${{ secrets.WIF_PROVIDER }}' # e.g. - projects/123456789/locations/global/workloadIdentityPools/my-pool/providers/my-provider
-          service_account: '${{ secrets.WIF_SERVICE_ACCOUNT }}' # e.g. - my-service-account@my-project.iam.gserviceaccount.com
-
-      # NOTE: Alternative option - authentication via credentials json
-      # - name: Google Auth
-      #   id: auth
-      #   uses: 'google-github-actions/auth@v0'
-      #   with:
-      #     credentials_json: '${{ secrets.GCP_CREDENTIALS }}''
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
 
       # BEGIN - Docker auth and build (NOTE: If you already have a container image, these Docker steps can be omitted)
 
       # Authenticate Docker to Google Cloud Artifact Registry
-      - name: Docker Auth
-        id: docker-auth
-        uses: 'docker/login-action@v1'
-        with:
-          username: 'oauth2accesstoken'
-          password: '${{ steps.auth.outputs.access_token }}'
-          registry: '${{ env.GAR_LOCATION }}-docker.pkg.dev'
+    #   - name: Docker Auth
+    #     id: docker-auth
+    #     uses: 'docker/login-action@v1'
+    #     with:
+    #       username: 'oauth2accesstoken'
+    #       password: '${{ steps.auth.outputs.access_token }}'
+    #       registry: '${{ env.GAR_LOCATION }}-docker.pkg.dev'
 
       - name: Build and Push Container
         run: |-
