@@ -1,0 +1,16 @@
+# Direct Deploy on Cloudrun from source code
+gcloud run deploy mlops-demo-app --region=asia-south1 --source=$(pwd) --allow-unauthenticated
+
+# Build docker image
+docker build -t mlops-demo-app:v0 .
+
+# Tag image
+docker tag mlops-demo-app:v0 asia-south1-docker.pkg.dev/mlop-gcp/python-app-repository/mlops-demo-app:v0
+
+# Push to artifact registry
+docker push asia-south1-docker.pkg.dev/mlop-gcp/python-app-repository/mlops-demo-app:v0
+
+# Deploy on Cloudrun from artifact registry
+gcloud run deploy mlops-demo-app-v0 \
+--image=asia-south1-docker.pkg.dev/mlop-gcp/python-app-repository/mlops-demo-app:v0 \
+--region=asia-south1
